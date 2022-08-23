@@ -3,6 +3,7 @@
 #include "Walnut/Image.h"
 #include "Walnut/Random.h"
 
+
 namespace Utils {
 
 	static uint32_t ConvertToRGBA(const glm::vec4& color)
@@ -16,11 +17,6 @@ namespace Utils {
 		return result;
 	}
 
-}
-
-Raytracer::Raytracer() :
-	m_LightDir(glm::vec3(-1, -1, -1)), m_BgColor(glm::vec4(0 ,0, 0, 0))
-{
 }
 
 void Raytracer::OnResize(uint32_t width, uint32_t height)
@@ -67,7 +63,9 @@ glm::vec4 Raytracer::PerPixel(glm::vec2 coord)
 	glm::vec3 rayOrigin(0.0f, 0.0f, 1.0f);
 	glm::vec3 rayDirection(coord.x, coord.y, -1.0f);
 
-	glm::vec4 color = glm::vec4(0.3f, 0.5f, 0.5f, 1.0f);
+	glm::vec4 outColor = m_BgColor; 
+	
+	m_Sphere->OnRender(rayOrigin, rayDirection, m_LightDir, outColor);
 
-	return color;
+	return outColor;
 }
