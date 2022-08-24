@@ -14,11 +14,11 @@ struct Transform
 class Object
 {
 public:
-	virtual ~Object() = default;
-
+	Object() :
+		m_Name("newObject") {}
 	virtual void OnRender(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 lightDirection, glm::vec4& outColor) = 0;
 public:
-	std::string m_Name="newObj";
+	std::string m_Name;
 	Transform m_Transform;
 	glm::vec4 m_Color;
 };

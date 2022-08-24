@@ -2,22 +2,24 @@
 
 void RaytracingLayer::OnAttach()
 {
-	m_Raytracer->m_Objects.push_back(std::make_shared<Sphere>(glm::vec3(0, 0, 0), 1.0f));
+	//m_Raytracer->m_Objects.push_back(std::make_shared<Sphere>(glm::vec3(0, 0, 0), 1.0f));
 }
 
 void RaytracingLayer::OnUIRender()
 {
 
-	ImGui::Begin("Hierarchy");
+    ImGui::Begin("Hierarchy");
 
-#ifdef i
+
+
+#if 0
     if (ImGui::TreeNode("Trees"))
     {
-       if (ImGui::TreeNode("Advanced, with Selectable nodes"))
+        if (ImGui::TreeNode("Advanced, with Selectable nodes"))
         {
             static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
             static bool test_drag_and_drop = true;
-            
+
 
             // 'selection_mask' is dumb representation of what may be user-side selection state.
             //  You may retain selection state inside or outside your objects in whatever format you see fit.
@@ -83,45 +85,77 @@ void RaytracingLayer::OnUIRender()
     }
 #endif
 
-	for (auto& object : m_Raytracer->m_Objects)
-	{
-		ImGui::Text(object->m_Name.c_str());
-	}
+    if (ImGui::BeginMenu("Create New Object"))
+    {
+        if (ImGui::MenuItem("Sphere"))
+        {
+            m_Raytracer->m_Objects.push_back(std::make_shared<Sphere>(glm::vec3(0, 0, 0), 1.0f));
+        }
+        ImGui::EndMenu();
+    }
+
+    static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+    static int node_clicked = -1; //todo make array of object a RaytracingLayer obj;
+
+    for (size_t i = 0; i < m_Raytracer->m_Objects.size(); i++)
+    {
+        auto& object = m_Raytracer->m_Objects[i];
+
+        ImGuiTreeNodeFlags node_flags = base_flags;
+        const bool is_selected = (node_clicked == i);
+        if (is_selected)
+            node_flags |= ImGuiTreeNodeFlags_Selected;
+
+        node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+        ImGui::TreeNodeEx(&i, node_flags, "%s %d", object->m_Name.c_str(), i);
+        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            node_clicked = i;
+    }
+
+    ImGui::End();
+
+    // Inspector begins here
+    ImGui::Begin("Inspector");
 
 
-	ImGui::End();
+    ImGui::DragFloat3("Light Direction", &m_Raytracer->m_LightDir.x, 0.03f);
 
-	ImGui::Begin("Inspector");
+    // todo make active object and custumise it
 
-	if (ImGui::Button("Render"))
-	{
-		Render();
-	}
+    if (node_clicked != -1)
+    {
+        auto activeObject = m_Raytracer->m_Objects[node_clicked];
+        ImGui::ColorEdit4("Color", &activeObject->m_Color.r);
+        ImGui::DragFloat3("Position", &activeObject->m_Transform.position.x, 0.03f);
+        //ImGui::InputText("Name", &);
+    }
 
-	ImGui::Text("Last render: %.3fms", m_LastRenderTime);
 
-	ImGui::End();
+    ImGui::Text("Last render: %.3fms", m_LastRenderTime);
 
-	// Creating Viewport
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::Begin("Viewport");
+    ImGui::End();
 
-	m_ViewportWidth = ImGui::GetContentRegionAvail().x;
-	m_ViewportHeight = ImGui::GetContentRegionAvail().y; 
-	
-	auto image = m_Raytracer->GetFinalImage();
-	if (image)
-	{
-		// Deploying the image
-		ImVec2 size = { (float)image->GetWidth(), (float)image->GetHeight() };
-		ImGui::Image(image->GetDescriptorSet(), size, ImVec2(0, 1), ImVec2(1, 0));
-	}
+    // Creating Viewport
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::Begin("Viewport");
 
-	ImGui::End();
-	ImGui::PopStyleVar();
+    m_ViewportWidth = ImGui::GetContentRegionAvail().x;
+    m_ViewportHeight = ImGui::GetContentRegionAvail().y;
 
-	//Rendering every frame
-	Render();
+    auto image = m_Raytracer->GetFinalImage();
+    if (image)
+    {
+        // Deploying the image
+        ImVec2 size = { (float)image->GetWidth(), (float)image->GetHeight() };
+        ImGui::Image(image->GetDescriptorSet(), size, ImVec2(0, 1), ImVec2(1, 0));
+    }
+
+    ImGui::End();
+    ImGui::PopStyleVar();
+
+    //Rendering every frame
+    Render();
 }
 
 void RaytracingLayer::Render()

@@ -1,6 +1,7 @@
 #include "Sphere.h"
 
 #include <iostream>
+
 Sphere::Sphere(Transform transform, glm::vec4 color)
 {
 	m_Transform = transform;
