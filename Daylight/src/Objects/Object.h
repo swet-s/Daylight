@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <glm/glm.hpp>
+#include <string>
 
 struct Transform
 {
@@ -17,6 +18,7 @@ public:
 
 	virtual void OnRender(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 lightDirection, glm::vec4& outColor) = 0;
 public:
+	std::string m_Name="newObj";
 	Transform m_Transform;
 	glm::vec4 m_Color;
 };

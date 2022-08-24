@@ -65,7 +65,10 @@ glm::vec4 Raytracer::PerPixel(glm::vec2 coord)
 
 	glm::vec4 outColor = m_BgColor; 
 	
-	m_Sphere->OnRender(rayOrigin, rayDirection, m_LightDir, outColor);
+	for (auto& object : m_Objects)
+	{
+		object->OnRender(rayOrigin, rayDirection, m_LightDir, outColor);
+	}
 
 	return outColor;
 }
