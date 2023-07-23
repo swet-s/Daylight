@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <string>
 
+#include "../Ray.h"
+
 struct Transform
 {
 	glm::vec3 position;
@@ -16,7 +18,7 @@ class Object
 public:
 	Object() :
 		m_Name("newObject") {}
-	virtual void OnRender(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 lightDirection, glm::vec4& outColor) = 0;
+	virtual void OnRender(Ray ray, glm::vec3 lightDirection, glm::vec4& outColor) = 0;
 public:
 	std::string m_Name;
 	Transform m_Transform;

@@ -34,18 +34,19 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
 	m_ImageData = new uint32_t[width * height];
 }
 
-void Renderer::Render()
+void Renderer::Render(const Camera& camera)
 {
+	Ray ray;
+	ray.Origin = camera.GetPosition();
+
+	// Iterate for every y for fast rendering
 	for (uint32_t y = 0; y < m_FinalImage->GetHeight(); y++)
 	{
 		for (uint32_t x = 0; x < m_FinalImage->GetWidth(); x++)
 		{
-			float aspectRatio = (float)m_FinalImage->GetWidth() / (float)m_FinalImage->GetHeight();
-			glm::vec2 coord = { (float)x / (float)m_FinalImage->GetWidth(), (float)y / (float)m_FinalImage->GetHeight() };
-			coord = coord * 2.0f - 1.0f; // -1 -> 1
-			coord.x *= aspectRatio;
+			ray.Direction = camera.GetRayDirections()[x + y * m_FinalImage->GetWidth()];
+			glm::vec4 color = TraceRay(ray);
 
-			glm::vec4 color = PerPixel(coord);
 			color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
 			m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(color);
 		}
@@ -54,16 +55,14 @@ void Renderer::Render()
 	m_FinalImage->SetData(m_ImageData);
 }
 
-glm::vec4 Renderer::PerPixel(glm::vec2 coord)
+glm::vec4 Renderer::TraceRay(const Ray& ray)
 {
-	glm::vec3 rayOrigin(0.0f, 0.0f, 1.0f);
-	glm::vec3 rayDirection(coord.x, coord.y, -1.0f);
 
 	glm::vec4 outColor = m_BgColor;
 
 	for (auto& object : m_Objects)
 	{
-		object->OnRender(rayOrigin, rayDirection, m_LightDir, outColor);
+		object->OnRender(ray, m_LightDir, outColor);
 	}
 
 	return outColor;

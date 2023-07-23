@@ -23,6 +23,6 @@ public:
 
 	glm::vec4 GetColor() { return m_Color; }
 
-	void OnRender(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 lightDirection, glm::vec4& outColor) override;
+	void OnRender(Ray ray, glm::vec3 lightDirection, glm::vec4& outColor) override;
 };
 
