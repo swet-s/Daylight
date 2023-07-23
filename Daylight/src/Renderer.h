@@ -1,19 +1,18 @@
 #pragma once
 
+#include "Walnut/Application.h"
+
 #include "Walnut/Image.h"
+#include "Walnut/Timer.h"
 
-#include <vector>
-#include <memory>
-#include <glm/glm.hpp>
+#include "Objects/Sphere.h"
 
-#include "Objects/Object.h"
-
-class Raytracer
+class Renderer
 {
 public:
-	Raytracer() : 
-		m_LightDir(glm::vec3(-1, -1, -1)), 
-		m_BgColor(glm::vec4(0, 0, 0, 0)) {}
+	Renderer():
+		m_LightDir(glm::vec3(-1, -1, -1)),
+		m_BgColor(glm::vec4(0.1f, 0.2f, 0.3f, 0.4f)) {}
 
 	void OnResize(uint32_t width, uint32_t height);
 	void Render();
@@ -25,6 +24,7 @@ private:
 	std::shared_ptr<Walnut::Image> m_FinalImage;
 	uint32_t* m_ImageData = nullptr;
 
+	//------//
 public:
 	glm::vec3 m_LightDir;
 	glm::vec4 m_BgColor;

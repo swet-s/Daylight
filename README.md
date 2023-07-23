@@ -1,6 +1,28 @@
-# Walnut App Template
+# Daylight
 
-This is a simple app template for [Walnut](https://github.com/TheCherno/Walnut) - unlike the example within the Walnut repository, this keeps Walnut as an external submodule and is much more sensible for actually building applications. See the [Walnut](https://github.com/TheCherno/Walnut) repository for more details.
+Daylight is an exciting project that delves into the world of Raytracing and Basic Rendering. It aims to provide a playground for learning and experimenting with cutting-edge graphics techniques and other fascinating elements.
 
 ## Getting Started
-Once you've cloned, you can customize the `premake5.lua` and `WalnutApp/premake5.lua` files to your liking (eg. change the name from "WalnutApp" to something else).  Once you're happy, run `scripts/Setup.bat` to generate Visual Studio 2022 solution/project files. Your app is located in the `WalnutApp/` directory, which some basic example code to get you going in `WalnutApp/src/WalnutApp.cpp`. I recommend modifying that WalnutApp project to create your own application, as everything should be setup and ready to go.
+
+### Cloning the Repository
+To get started, clone the Daylight repository using the following command in your terminal or command prompt:
+
+```bash
+git clone --recursive "https://github.com/swet-s/Daylight"
+```
+
+The --recursive flag is essential during the cloning process because Daylight depends on external submodules/libraries.
+
+### Setup
+After cloning the repository, navigate to the project directory and run `Setup.bat` located in the `scripts` folder. This script will generate the necessary Visual Studio 2022 solution and project files, setting up the project for you to start working on.
+
+### Prerequisites
+Before running this project, ensure that you have the following installed:
+
+- Vulkan SDK
+- Visual Studio 2022 (or later)
+
+Once you have the prerequisites ready and the setup completed, you can dive into Daylight's exciting world of Raytracing and Basic Rendering!
+
+## License
+This project is licensed under the [MIT License](LICENSE).

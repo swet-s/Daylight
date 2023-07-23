@@ -18,7 +18,6 @@ Sphere::Sphere(glm::vec3 centre, float radius, glm::vec4 color)
 void Sphere::OnRender(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 lightDirection, glm::vec4& outColor)
 {
 	float radius = 0.3f;
-	//rayDirection = glm::normalize(rayDirection);
 
 	// P(t) = A + tB
 	// (P-C)•(P-C) = r²
@@ -40,7 +39,8 @@ void Sphere::OnRender(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 lig
 	float closestT = (-b - glm::sqrt(discriminant)) / (2.0f * a);
 	float t0 = (-b + glm::sqrt(discriminant)) / (2.0f * a); // Second hit distance (currently unused)
 
-	glm::vec3 hitPoint = rayOrigin + rayDirection * closestT;
+	glm::vec3 origin = rayOrigin - m_Transform.position; // for uniform lighting
+	glm::vec3 hitPoint = origin + rayDirection * closestT;
 	glm::vec3 normal = glm::normalize(hitPoint);
 
 	float lightIntensity = glm::max(glm::dot(normal, -lightDirection), 0.0f); // == cos(angle)
