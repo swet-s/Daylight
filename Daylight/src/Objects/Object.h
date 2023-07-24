@@ -5,12 +5,13 @@
 #include <string>
 
 #include "../Ray.h"
+//#include "../Scene.h"
 
 struct Transform
 {
-	glm::vec3 position;
-	glm::vec4 rotation;
-	glm::vec3 scale;
+	glm::vec3 Position;
+	glm::vec4 Rotation;
+	glm::vec3 Scale;
 };
 
 class Object
@@ -18,7 +19,7 @@ class Object
 public:
 	Object() :
 		m_Name("newObject") {}
-	virtual void OnRender(Ray ray, glm::vec3 lightDirection, glm::vec4& outColor) = 0;
+	virtual float GetClosestHit(const Ray& ray) = 0;
 public:
 	std::string m_Name;
 	Transform m_Transform;

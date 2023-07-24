@@ -34,7 +34,11 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
 	m_ImageData = new uint32_t[width * height];
 }
 
-void Renderer::Render(const Camera& camera)
+
+
+
+
+void Renderer::Render(const Scene& scene, const Camera& camera)
 {
 	Ray ray;
 	ray.Origin = camera.GetPosition();
@@ -45,7 +49,7 @@ void Renderer::Render(const Camera& camera)
 		for (uint32_t x = 0; x < m_FinalImage->GetWidth(); x++)
 		{
 			ray.Direction = camera.GetRayDirections()[x + y * m_FinalImage->GetWidth()];
-			glm::vec4 color = TraceRay(ray);
+			glm::vec4 color = TraceRay(scene, ray);
 
 			color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
 			m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(color);
@@ -55,15 +59,37 @@ void Renderer::Render(const Camera& camera)
 	m_FinalImage->SetData(m_ImageData);
 }
 
-glm::vec4 Renderer::TraceRay(const Ray& ray)
+glm::vec4 Renderer::TraceRay(const Scene& scene, const Ray& ray)
 {
+	glm::vec4 outColor = scene.BgColor;
 
-	glm::vec4 outColor = m_BgColor;
+	if (scene.Objects.size() == 0)
+		return glm::vec4(0, 0, 0, 1);
 
-	for (auto& object : m_Objects)
+	std::shared_ptr<Object> closestObject = nullptr; //Is it the correct way?
+	float hitDistance = std::numeric_limits<float>::max();
+
+
+	for (std::shared_ptr<Object> object : scene.Objects)
 	{
-		object->OnRender(ray, m_LightDir, outColor);
+		float closestHit = object->GetClosestHit(ray); 
+		if (closestHit < hitDistance)
+		{
+			hitDistance = closestHit;
+			closestObject = object;
+		}
+		//object->OnRender(scene, ray, outColor);
 	}
+	
+	if (closestObject == nullptr)
+		return scene.BgColor;
 
-	return outColor;
+	// TODO calcutate normal for different object diffrently
+	glm::vec3 origin = ray.Origin - closestObject->m_Transform.Position;
+	glm::vec3 hitPoint = origin + ray.Direction * hitDistance;
+	glm::vec3 normal = glm::normalize(hitPoint);
+
+	float lightIntensity = glm::max(glm::dot(normal, -glm::normalize(scene.LightDir)), 0.0f); // == cos(angle)
+
+	return closestObject->m_Color * lightIntensity;
 }
