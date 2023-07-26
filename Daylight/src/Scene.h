@@ -9,6 +9,6 @@
 struct Scene
 {
 	glm::vec3 LightDir;
-	glm::vec4 BgColor;
+	glm::vec3 BgColor;
 	std::vector<std::shared_ptr<Object>> Objects;
 };

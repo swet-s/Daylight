@@ -22,19 +22,21 @@ public:
 		: m_Camera(45.0f, 0.1f, 100.0f)
 	{
 		m_Scene.LightDir = { -1.0f, -1.0f, -1.0f };
-		m_Scene.BgColor = { 0.1f, 0.2f, 0.3f, 1.0f };
+		m_Scene.BgColor = { 0.5f, 0.7f, 0.9f };
 	}
 
 	virtual void OnUpdate(float ts) override
 	{
 		m_Camera.OnUpdate(ts);
-}
+	}
 
 	virtual void OnAttach() override
 	{
-		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(0, 0, 0), 0.3f));
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(-0.3, 0.3, 0.1), 0.4f, glm::vec3(0.9, 0.3, 0.2)));
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(0, -101.0, -5.5f), 5.8f, glm::vec3(0.2, 0.8, 0.1)));
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(0.7, 0.5, 0.6f), 0.3f, glm::vec3(0.9, 0.6, 0.1)));
 	}
-
+	
 	virtual void OnUIRender() override
 	{
 		ImGui::Begin("Hierarchy");
@@ -74,6 +76,7 @@ public:
 
 
 		ImGui::DragFloat3("Light Direction", glm::value_ptr(m_Scene.LightDir), 0.03f);
+		ImGui::ColorEdit3("Sky Color", glm::value_ptr(m_Scene.BgColor), 0.03f);
 
 		// todo make active object and custumise it
 

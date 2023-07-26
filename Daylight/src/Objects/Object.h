@@ -23,6 +23,6 @@ public:
 public:
 	std::string m_Name;
 	Transform m_Transform;
-	glm::vec4 m_Color;
+	glm::vec3 m_Color;
 };
 

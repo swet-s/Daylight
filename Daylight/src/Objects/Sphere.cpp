@@ -2,13 +2,13 @@
 
 #include <iostream>
 
-Sphere::Sphere(Transform transform, glm::vec4 color)
+Sphere::Sphere(Transform transform, glm::vec3 color)
 {
 	m_Transform = transform;
 	m_Color = color;
 }
 
-Sphere::Sphere(glm::vec3 centre, float radius, glm::vec4 color)
+Sphere::Sphere(glm::vec3 centre, float radius, glm::vec3 color)
 {
 	m_Transform.Position = centre;
 	m_Transform.Scale = glm::vec3(radius);

@@ -40,17 +40,18 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
 
 void Renderer::Render(const Scene& scene, const Camera& camera)
 {
-	Ray ray;
-	ray.Origin = camera.GetPosition();
+	m_ActiveScene = &scene;
+	m_ActiveCamera = &camera;
 
 	// Iterate for every y for fast rendering
 	for (uint32_t y = 0; y < m_FinalImage->GetHeight(); y++)
 	{
 		for (uint32_t x = 0; x < m_FinalImage->GetWidth(); x++)
 		{
-			ray.Direction = camera.GetRayDirections()[x + y * m_FinalImage->GetWidth()];
-			glm::vec4 color = TraceRay(scene, ray);
+			// Calculate color for every pixel 
+			glm::vec4 color = PerPixel(x, y);
 
+			// Clamp and set the color
 			color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
 			m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(color);
 		}
@@ -59,37 +60,104 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 	m_FinalImage->SetData(m_ImageData);
 }
 
-glm::vec4 Renderer::TraceRay(const Scene& scene, const Ray& ray)
+glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 {
-	glm::vec4 outColor = scene.BgColor;
+	// Generate the ray and link it to the camera
+	Ray ray;
+	ray.Origin = m_ActiveCamera->GetPosition();
+	ray.Direction = m_ActiveCamera->GetRayDirections()[x + y * m_FinalImage->GetWidth()];
 
-	if (scene.Objects.size() == 0)
-		return glm::vec4(0, 0, 0, 1);
+	glm::vec3 color(0.0f);
+	float multiplier = 1.0f;
 
-	std::shared_ptr<Object> closestObject = nullptr; //Is it the correct way?
+	int bounces = 30;
+	for (int i = 0; i < bounces; i++)
+	{
+		// Trace ray and get the HitPayload
+		Renderer::HitPayload payload = TraceRay(ray);
+
+		// We get here from Miss
+		if (payload.HitDistance < 0.0f)
+		{
+			glm::vec3 skyColor = m_ActiveScene->BgColor;
+			color += skyColor * multiplier;//
+			break;
+		}
+
+		glm::vec3 lightDir = glm::normalize(m_ActiveScene->LightDir);
+		float lightIntensity = glm::max(glm::dot(payload.WorldNormal, -lightDir), 0.0f); // == cos(angle)
+
+
+		const std::shared_ptr<Object> object = m_ActiveScene->Objects[payload.ObjectIndex];
+		glm::vec3 objectColor = object->m_Color;
+		objectColor *= lightIntensity;
+		color += objectColor * multiplier; //
+
+		multiplier *= 0.7f;
+
+		//Place reflected ray origin slightly further along the normal from the intersection point.
+		ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.0001f;
+		ray.Direction = glm::reflect(ray.Direction, payload.WorldNormal);
+	}
+
+	return glm::vec4(color, 1.0f);
+}
+
+Renderer::HitPayload Renderer::TraceRay(const Ray& ray)
+{
+	int closestObjectIndex = -1;
 	float hitDistance = std::numeric_limits<float>::max();
 
-
-	for (std::shared_ptr<Object> object : scene.Objects)
+	for (size_t i = 0; i < m_ActiveScene->Objects.size(); i++)
 	{
-		float closestHit = object->GetClosestHit(ray); 
-		if (closestHit < hitDistance)
+		const std::shared_ptr<Object> object = m_ActiveScene->Objects[i];
+
+		float closestHit = object->GetClosestHit(ray);
+
+		//Verify if the ClosestHit is in front of the camera
+		if (closestHit > 0.0f && closestHit < hitDistance) 
 		{
 			hitDistance = closestHit;
-			closestObject = object;
+			closestObjectIndex = (int)i;
 		}
-		//object->OnRender(scene, ray, outColor);
 	}
-	
-	if (closestObject == nullptr)
-		return scene.BgColor;
+
+	if (closestObjectIndex < 0)
+		return Miss(ray);
+
+
+	return ClosestHit(ray, hitDistance, closestObjectIndex);
+}
+
+Renderer::HitPayload Renderer::ClosestHit(const Ray& ray, float hitDistance, int objectIndex)
+{
+	Renderer::HitPayload payload;
+	payload.HitDistance = hitDistance;
+	payload.ObjectIndex = objectIndex;
+
+	const std::shared_ptr<Object> closestObject = m_ActiveScene->Objects[objectIndex];
+
 
 	// TODO calcutate normal for different object diffrently
+
+	// subract the ray origin by the object position to displace the object 
 	glm::vec3 origin = ray.Origin - closestObject->m_Transform.Position;
-	glm::vec3 hitPoint = origin + ray.Direction * hitDistance;
-	glm::vec3 normal = glm::normalize(hitPoint);
 
-	float lightIntensity = glm::max(glm::dot(normal, -glm::normalize(scene.LightDir)), 0.0f); // == cos(angle)
+	payload.WorldPosition = origin + ray.Direction * hitDistance;
+	payload.WorldNormal = glm::normalize(payload.WorldPosition);
 
-	return closestObject->m_Color * lightIntensity;
+	// add back the object position to the ray origin after calculating the color
+	payload.WorldPosition += closestObject->m_Transform.Position;
+
+
+	return payload;
 }
+
+Renderer::HitPayload Renderer::Miss(const Ray& ray)
+{
+	Renderer::HitPayload payload;
+	payload.HitDistance = -1.0f;
+	return payload;
+}
+
+
