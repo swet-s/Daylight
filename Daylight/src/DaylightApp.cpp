@@ -22,19 +22,26 @@ public:
 		: m_Camera(45.0f, 0.1f, 100.0f)
 	{
 		m_Scene.LightDir = { -1.0f, -1.0f, -1.0f };
-		m_Scene.BgColor = { 0.5f, 0.7f, 0.9f };
+		m_Scene.BgColor = { 0.6f, 0.7f, 0.9f };
 	}
 
 	virtual void OnUpdate(float ts) override
 	{
-		m_Camera.OnUpdate(ts);
+		// if camera is moved reset frameIndex
+		if (m_Camera.OnUpdate(ts))
+			m_Renderer.ResetFrameIndex();
 	}
 
 	virtual void OnAttach() override
 	{
-		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(-0.3, 0.3, 0.1), 0.4f, glm::vec3(0.9, 0.3, 0.2)));
-		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(0, -101.0, -5.5f), 5.8f, glm::vec3(0.2, 0.8, 0.1)));
-		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(0.7, 0.5, 0.6f), 0.3f, glm::vec3(0.9, 0.6, 0.1)));
+		m_Scene.Materials.push_back(Material({ glm::vec3(0.9, 0.3, 0.2), 1.0f, 1.0f, 1.0f }));
+		m_Scene.Materials.push_back(Material({ glm::vec3(0.2, 0.8, 0.1), 1.0f, 1.0f, 1.0f }));
+		m_Scene.Materials.push_back(Material({ glm::vec3(0.9, 0.6, 0.1), 1.0f, 1.0f, 1.0f }));
+
+
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(-0.3, 0.3, 0.1), 0.4f, 0));
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(0, -101.0, -5.5f), 5.8f, 1));
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(0.7, 0.5, 0.6f), 0.3f, 2));
 	}
 	
 	virtual void OnUIRender() override
@@ -90,9 +97,23 @@ public:
 
 			ImGui::DragFloat3("Position", glm::value_ptr(activeObject->m_Transform.Position), 0.1f);
 			ImGui::DragFloat3("Radius", glm::value_ptr(activeObject->m_Transform.Scale), 0.1f);
-			ImGui::ColorEdit3("Albedo", glm::value_ptr(activeObject->m_Color));
+			ImGui::DragInt("Material", &activeObject->m_MaterialIndex, 1.0f, 0, (int)m_Scene.Materials.size() - 1);
 			
 			ImGui::Separator();
+		}
+
+		for (size_t i = 0; i < m_Scene.Materials.size(); i++)
+		{
+			ImGui::PushID(i);
+
+			Material& material = m_Scene.Materials[i];
+			ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
+			ImGui::DragFloat("Roughness", &material.Roughness, 0.05f, 0.0f, 1.0f);
+			ImGui::DragFloat("Metallic", &material.Metallic, 0.05f, 0.0f, 1.0f);
+
+			ImGui::Separator();
+
+			ImGui::PopID();
 		}
 
 

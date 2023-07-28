@@ -5,7 +5,6 @@
 #include <string>
 
 #include "../Ray.h"
-//#include "../Scene.h"
 
 struct Transform
 {
@@ -23,6 +22,6 @@ public:
 public:
 	std::string m_Name;
 	Transform m_Transform;
-	glm::vec3 m_Color;
+	int m_MaterialIndex = 0;
 };
 

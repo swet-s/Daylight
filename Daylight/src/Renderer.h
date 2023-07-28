@@ -20,6 +20,8 @@ public:
 	void Render(const Scene& scene, const Camera& camera);
 
 	std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; }
+	
+	void ResetFrameIndex() { m_FrameIndex = 1; }
 private:
 	struct HitPayload
 	{
@@ -41,5 +43,8 @@ private:
 	const Scene* m_ActiveScene = nullptr;
 	const Camera* m_ActiveCamera = nullptr;
 
-	uint32_t* m_ImageData = nullptr;
+	uint32_t* m_ImageData = nullptr; 
+	glm::vec4* m_AccumulationData = nullptr; //holds more data as glm::vec4*
+
+	uint32_t m_FrameIndex = 1;
 };

@@ -2,17 +2,16 @@
 
 #include <iostream>
 
-Sphere::Sphere(Transform transform, glm::vec3 color)
+Sphere::Sphere(Transform transform)
 {
 	m_Transform = transform;
-	m_Color = color;
 }
 
-Sphere::Sphere(glm::vec3 centre, float radius, glm::vec3 color)
+Sphere::Sphere(glm::vec3 centre, float radius, uint32_t materialIndex)
 {
 	m_Transform.Position = centre;
 	m_Transform.Scale = glm::vec3(radius);
-	m_Color = color;
+	m_MaterialIndex = materialIndex;
 }
 
 float Sphere::GetClosestHit(const Ray& ray)
