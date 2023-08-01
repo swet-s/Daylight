@@ -36,7 +36,7 @@ public:
 	{
 		m_Scene.Materials.push_back(Material({ glm::vec3(0.9, 0.3, 0.2), 1.0f, 1.0f, 1.0f }));
 		m_Scene.Materials.push_back(Material({ glm::vec3(0.2, 0.8, 0.1), 1.0f, 1.0f, 1.0f }));
-		m_Scene.Materials.push_back(Material({ glm::vec3(0.9, 0.6, 0.1), 1.0f, 1.0f, 1.0f }));
+		m_Scene.Materials.push_back(Material({ glm::vec3(0.8, 0.5, 0.2), 1.0f, 1.0f, 1.0f }));
 
 
 		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(-0.3, 0.3, 0.1), 0.4f, 0));
@@ -76,6 +76,37 @@ public:
 		        node_clicked = i;
 		}
 		
+		ImGui::End(); 
+		
+		//
+		ImGui::Begin("Asset");
+
+		if (ImGui::BeginMenu("Create New Material"))
+		{
+			if (ImGui::MenuItem("Default Material"))
+			{
+				//m_Scene.Materials.push_back(Material({ glm::vec3(1.0f, 0.0f, 1.0f), 1.0f, 1.0f, 1.0f }));
+			}
+			ImGui::EndMenu();
+		}
+
+
+		for (size_t i = 0; i < m_Scene.Materials.size(); i++)
+		{
+			ImGui::PushID(i);
+
+			Material& material = m_Scene.Materials[i];
+			ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
+			ImGui::DragFloat("Roughness", &material.Roughness, 0.05f, 0.0f, 1.0f);
+			ImGui::DragFloat("Metallic", &material.Metallic, 0.05f, 0.0f, 1.0f);
+			ImGui::DragFloat("Emission Power", &material.EmissionPower, 0.05f, 0.0f, FLT_MAX);
+
+			ImGui::Separator();
+
+			ImGui::PopID();
+		}
+
+
 		ImGui::End();
 
 		// Inspector begins here
@@ -84,6 +115,8 @@ public:
 
 		ImGui::DragFloat3("Light Direction", glm::value_ptr(m_Scene.LightDir), 0.03f);
 		ImGui::ColorEdit3("Sky Color", glm::value_ptr(m_Scene.BgColor), 0.03f);
+
+		ImGui::Separator();
 
 		// todo make active object and custumise it
 
@@ -100,20 +133,6 @@ public:
 			ImGui::DragInt("Material", &activeObject->m_MaterialIndex, 1.0f, 0, (int)m_Scene.Materials.size() - 1);
 			
 			ImGui::Separator();
-		}
-
-		for (size_t i = 0; i < m_Scene.Materials.size(); i++)
-		{
-			ImGui::PushID(i);
-
-			Material& material = m_Scene.Materials[i];
-			ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
-			ImGui::DragFloat("Roughness", &material.Roughness, 0.05f, 0.0f, 1.0f);
-			ImGui::DragFloat("Metallic", &material.Metallic, 0.05f, 0.0f, 1.0f);
-
-			ImGui::Separator();
-
-			ImGui::PopID();
 		}
 
 
