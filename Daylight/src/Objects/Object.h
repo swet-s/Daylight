@@ -18,10 +18,14 @@ class Object
 public:
 	Object() :
 		m_Name("newObject") {}
+	std::string getName() { return m_Name; }
+	void setName(std::string name) { m_Name = name; }
+
 	virtual float GetClosestHit(const Ray& ray) = 0;
 public:
-	std::string m_Name;
 	Transform m_Transform;
 	int m_MaterialIndex = 0;
+private:
+	std::string m_Name;
 };
 

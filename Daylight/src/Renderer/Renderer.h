@@ -2,11 +2,11 @@
 
 #include "Walnut/Image.h"
 
-#include "Objects/Object.h"
+#include "../Objects/Object.h"
 
-#include "Camera.h"
-#include "Ray.h"
-#include "Scene.h"
+#include "../Camera/Camera.h"
+#include "../Ray.h"
+#include "../Scene.h"
 
 #include <memory>
 #include <glm/glm.hpp>

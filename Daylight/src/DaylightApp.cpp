@@ -4,26 +4,21 @@
 #include "Walnut/Image.h"
 #include "Walnut/Timer.h"
 
-#include "Renderer.h"
-#include "Camera.h"
+#include "Renderer/Renderer.h"
+#include "Camera/Camera.h"
 #include "Scene.h"
 
 #include "Objects/Sphere.h"
 
-#include <glm/gtc/type_ptr.hpp>
+#include "ImGuiUtils/ImGuiUtils.h"
 
 using namespace Walnut;
 
 class RendererLayer : public Walnut::Layer
 {
 public:
-	
 	RendererLayer()
-		: m_Camera(45.0f, 0.1f, 100.0f)
-	{
-		m_Scene.LightDir = { -1.0f, -1.0f, -1.0f };
-		m_Scene.BgColor = { 0.6f, 0.7f, 0.9f };
-	}
+		: m_Camera(45.0f, 0.1f, 100.0f), m_Scene(glm::vec3(-1.0f), glm::vec3(0.6f, 0.7f, 0.9f)) {}
 
 	virtual void OnUpdate(float ts) override
 	{
@@ -34,135 +29,30 @@ public:
 
 	virtual void OnAttach() override
 	{
-		m_Scene.Materials.push_back(Material({ glm::vec3(0.9, 0.3, 0.2), 1.0f, 1.0f, 1.0f }));
-		m_Scene.Materials.push_back(Material({ glm::vec3(0.2, 0.8, 0.1), 1.0f, 1.0f, 1.0f }));
-		m_Scene.Materials.push_back(Material({ glm::vec3(0.8, 0.5, 0.2), 1.0f, 1.0f, 1.0f }));
+		m_Scene.Materials.push_back(Material({ "Orange",glm::vec3(0.9, 0.3, 0.0), 1.0f, 1.0f, 1.0f }));
+		m_Scene.Materials.push_back(Material({ "Green",glm::vec3(0.1, 0.9, 0.2), 1.0f, 1.0f, 0.2f }));
+		m_Scene.Materials.push_back(Material({ "Yellow",glm::vec3(0.9, 0.8, 0.0), 1.0f, 1.0f, 1.0f }));
 
+		Sphere sphere1 = { glm::vec3(1.0, 2.0, 0.0), 0.7f, 0 };
+		sphere1.setName("OrangeBall");
 
-		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(-0.3, 0.3, 0.1), 0.4f, 0));
-		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(0, -101.0, -5.5f), 5.8f, 1));
-		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(0.7, 0.5, 0.6f), 0.3f, 2));
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(sphere1));
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(-1.0, -1.0, 0.0), 0.7f, 1));
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(0.0, 0.0, -2.0), 0.7f, 2));
 	}
-	
+
 	virtual void OnUIRender() override
 	{
-		ImGui::Begin("Hierarchy");
-		
-		if (ImGui::BeginMenu("Create New Object"))
-		{
-		    if (ImGui::MenuItem("Sphere"))
-		    {
-		        m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(0, 0, 0), 0.3f));
-		    }
-		    ImGui::EndMenu();
-		}
-		
-		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-		
-		static int node_clicked = -1; //todo make array of object a Renderer obj;
-		
-		for (size_t i = 0; i < m_Scene.Objects.size(); i++)
-		{
-		    auto& object = m_Scene.Objects[i];
-		
-		    ImGuiTreeNodeFlags node_flags = base_flags;
-		    const bool is_selected = (node_clicked == i);
-		    if (is_selected)
-		        node_flags |= ImGuiTreeNodeFlags_Selected;
-		
-		    node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-		    ImGui::TreeNodeEx(&i, node_flags, "%s %d", object->m_Name.c_str(), i);
-		    if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
-		        node_clicked = i;
-		}
-		
-		ImGui::End(); 
-		
-		//
-		ImGui::Begin("Asset");
+		ImGuiUtils::AddHierarchy(m_Scene);
+		ImGuiUtils::AddInspector(m_Scene, m_LastRenderTime);
+		ImGuiUtils::AddAssetsMenu(m_Scene);
 
-		if (ImGui::BeginMenu("Create New Material"))
-		{
-			if (ImGui::MenuItem("Default Material"))
-			{
-				//m_Scene.Materials.push_back(Material({ glm::vec3(1.0f, 0.0f, 1.0f), 1.0f, 1.0f, 1.0f }));
-			}
-			ImGui::EndMenu();
-		}
-
-
-		for (size_t i = 0; i < m_Scene.Materials.size(); i++)
-		{
-			ImGui::PushID(i);
-
-			Material& material = m_Scene.Materials[i];
-			ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
-			ImGui::DragFloat("Roughness", &material.Roughness, 0.05f, 0.0f, 1.0f);
-			ImGui::DragFloat("Metallic", &material.Metallic, 0.05f, 0.0f, 1.0f);
-			ImGui::DragFloat("Emission Power", &material.EmissionPower, 0.05f, 0.0f, FLT_MAX);
-
-			ImGui::Separator();
-
-			ImGui::PopID();
-		}
-
-
-		ImGui::End();
-
-		// Inspector begins here
-		ImGui::Begin("Inspector");
-
-
-		ImGui::DragFloat3("Light Direction", glm::value_ptr(m_Scene.LightDir), 0.03f);
-		ImGui::ColorEdit3("Sky Color", glm::value_ptr(m_Scene.BgColor), 0.03f);
-
-		ImGui::Separator();
-
-		// todo make active object and custumise it
-
-		if (node_clicked != -1)
-		{
-			auto activeObject = m_Scene.Objects[node_clicked];
-
-			ImGui::Separator();
-
-			//ImGui::InputText("Name", activeObject->m_Name.c_str());
-
-			ImGui::DragFloat3("Position", glm::value_ptr(activeObject->m_Transform.Position), 0.1f);
-			ImGui::DragFloat3("Radius", glm::value_ptr(activeObject->m_Transform.Scale), 0.1f);
-			ImGui::DragInt("Material", &activeObject->m_MaterialIndex, 1.0f, 0, (int)m_Scene.Materials.size() - 1);
-			
-			ImGui::Separator();
-		}
-
-
-		ImGui::Text("Last render: %.3fms", m_LastRenderTime);
-
-		ImGui::End();
-
-		// Creating Viewport
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));// Set Viewport Padding to 0
-		ImGui::Begin("Viewport");
-
-		m_ViewportWidth = ImGui::GetContentRegionAvail().x;
-		m_ViewportHeight = ImGui::GetContentRegionAvail().y;
-	
-		// Get the finalImage from the renderer and upload it to ImGui
-		auto image = m_Renderer.GetFinalImage();
-		if (image)
-		{
-			// Deploying the image
-			ImVec2 size = { (float)image->GetWidth(), (float)image->GetHeight() };
-			ImGui::Image(image->GetDescriptorSet(), size, ImVec2(0, 1), ImVec2(1, 0));
-		}
-
-		ImGui::End();
-		ImGui::PopStyleVar();
+		ImGuiUtils::AddViewPort(m_Renderer, m_ViewportWidth, m_ViewportHeight);
 
 		//Rendering every frame
 		Render();
 	}
-	
+
 	void Render()
 	{
 		Timer timer;
@@ -175,11 +65,12 @@ public:
 	}
 private:
 	Renderer m_Renderer;
-	Camera m_Camera; 
+	Camera m_Camera;
 	Scene m_Scene;
 	uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 
 	float m_LastRenderTime = 0.0f;
+	bool m_accumulate = false;
 };
 
 
@@ -190,7 +81,7 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 
 	Walnut::Application* app = new Walnut::Application(spec);
 	app->PushLayer<RendererLayer>();
-	//app->PushLayer<Renderer>();
+
 	app->SetMenubarCallback([app]()
 	{
 		if (ImGui::BeginMenu("File"))

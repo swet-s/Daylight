@@ -1,21 +1,8 @@
 #include "Renderer.h"
 
 #include "Walnut/Random.h"
-
-namespace Utils {
-
-	static uint32_t ConvertToRGBA(const glm::vec4& color)
-	{
-		uint8_t r = (uint8_t)(color.r * 255.0f);
-		uint8_t g = (uint8_t)(color.g * 255.0f);
-		uint8_t b = (uint8_t)(color.b * 255.0f);
-		uint8_t a = (uint8_t)(color.a * 255.0f);
-
-		uint32_t result = (a << 24) | (b << 16) | (g << 8) | r;
-		return result;
-	}
-
-}
+#include "../Utils/ConvertToRGBA.h"
+#include "../ImGuiUtils/ImGuiUtils.h"
 
 void Renderer::OnResize(uint32_t width, uint32_t height)
 {
@@ -47,7 +34,7 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 	m_ActiveCamera = &camera;
 
 	// reset m_AccumalationData to 0
-	if (m_FrameIndex == 1)
+	if (ImGuiUtils::getAccumulationStatus() && m_FrameIndex == 1)
 		memset(m_AccumulationData, 0, m_FinalImage->GetWidth() * m_FinalImage->GetHeight() * sizeof(glm::vec4));
 
 	// Iterate for every y for fast rendering
@@ -58,16 +45,23 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 			//Calculate color for every pixel 
 			glm::vec4 color = PerPixel(x, y);
 
-			// add imageData over different frame
-			m_AccumulationData[x + y * m_FinalImage->GetWidth()] += color;
+			if (ImGuiUtils::getAccumulationStatus()) {
+				// add imageData over different frame
+				m_AccumulationData[x + y * m_FinalImage->GetWidth()] += color;
 
-			// get average by dividing with frameIndex
-			glm::vec4 accumulatedColor = m_AccumulationData[x + y * m_FinalImage->GetWidth()];
-			accumulatedColor /= (float)m_FrameIndex;
+				// get average by dividing with frameIndex
+				glm::vec4 accumulatedColor = m_AccumulationData[x + y * m_FinalImage->GetWidth()];
+				accumulatedColor /= (float)m_FrameIndex;
 
-			// Clamp and set the color
-			accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
-			m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
+				// Clamp and set the color
+				accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
+				m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
+			}
+			else {
+				m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(color);
+				m_FrameIndex = 0;
+			}
+			
 		}
 	}
 
