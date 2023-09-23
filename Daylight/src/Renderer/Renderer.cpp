@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 #include "Walnut/Random.h"
-#include "../Utils/ConvertToRGBA.h"
+#include "../Utils/Utils.h"
 #include "../ImGuiUtils/ImGuiUtils.h"
 
 void Renderer::OnResize(uint32_t width, uint32_t height)
@@ -55,10 +55,12 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 
 				// Clamp and set the color
 				accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
-				m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
+				glm::vec4 clampedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
+				m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(clampedColor);
 			}
 			else {
-				m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(color);
+				glm::vec4 clampedColor = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
+				m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(clampedColor);
 				m_FrameIndex = 0;
 			}
 			
@@ -77,11 +79,10 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 	ray.Origin = m_ActiveCamera->GetPosition();
 	ray.Direction = m_ActiveCamera->GetRayDirections()[x + y * m_FinalImage->GetWidth()];
 
-	glm::vec3 light(0.0f);
-	glm::vec3 throughput(1.0f);
+	glm::vec3 light(0.0f); // What light sources lie along the path of ray.
+	glm::vec3 throughput(1.0f); // How incoming light will be affected with the object it interacts with.
 
-	int bounces = 5;
-	for (int i = 0; i < bounces; i++)
+	for (int i = 0; i < ImGuiUtils::getBounce(); i++)
 	{
 		// Trace ray and get the HitPayload
 		Renderer::HitPayload payload = TraceRay(ray);
@@ -89,12 +90,11 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 		// We get here from Miss
 		if (payload.HitDistance < 0.0f)
 		{
-			glm::vec3 skyColor = m_ActiveScene->BgColor;
-			light += skyColor * throughput;
-			//color += skyColor * multiplier;//
+			light += Utils::GetEnviromentLight(ray, m_ActiveScene->SampleSky) * throughput;
 			break;
 		}
 
+#if OLD_CODE
 		glm::vec3 lightDir = glm::normalize(m_ActiveScene->LightDir);
 		float lightIntensity = glm::max(glm::dot(payload.WorldNormal, -lightDir), 0.0f); // == cos(angle)
 
@@ -115,6 +115,17 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 		ray.Direction = glm::normalize(payload.WorldNormal + Walnut::Random::InUnitSphere());
 
 		//ray.Direction = glm::reflect(ray.Direction, payload.WorldNormal + material.Roughness * Walnut::Random::Vec3(-0.5f, 0.5f));
+#endif
+		//Place reflected ray origin slightly further along the normal from the intersection point.
+		ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.0001f;
+		ray.Direction = glm::normalize(payload.WorldNormal + Walnut::Random::InUnitSphere());
+
+
+		const std::shared_ptr<Object> object = m_ActiveScene->Objects[payload.ObjectIndex];
+		const Material& material = m_ActiveScene->Materials[object->m_MaterialIndex];
+		light += material.GetEmission() * throughput;
+		throughput *= material.Albedo;
+
 	}
 
 	return glm::vec4(light, 1.0f);

@@ -18,7 +18,7 @@ class RendererLayer : public Walnut::Layer
 {
 public:
 	RendererLayer()
-		: m_Camera(45.0f, 0.1f, 100.0f), m_Scene(glm::vec3(-1.0f), glm::vec3(0.6f, 0.7f, 0.9f)) {}
+		: m_Camera(45.0f, 0.1f, 100.0f) {}
 
 	virtual void OnUpdate(float ts) override
 	{
@@ -29,23 +29,38 @@ public:
 
 	virtual void OnAttach() override
 	{
-		m_Scene.Materials.push_back(Material({ "Orange",glm::vec3(0.9, 0.3, 0.0), 1.0f, 1.0f, 1.0f }));
-		m_Scene.Materials.push_back(Material({ "Green",glm::vec3(0.1, 0.9, 0.2), 1.0f, 1.0f, 0.2f }));
-		m_Scene.Materials.push_back(Material({ "Yellow",glm::vec3(0.9, 0.8, 0.0), 1.0f, 1.0f, 1.0f }));
+		m_Scene.Materials.push_back(Material({ "DullOrange", glm::vec3(0.9, 0.3, 0.0), 1.0f, 0.0f, 0.0f, {0.0, 0.0, 0.0} }));
+		m_Scene.Materials.push_back(Material({ "DullGreen", glm::vec3(0.1, 0.9, 0.2), 1.0f, 0.0f, 0.0f, {0.0, 0.0, 0.0} }));
+		m_Scene.Materials.push_back(Material({ "ShinyYellow", glm::vec3(0.8, 0.7, 0.1), 0.0f, 1.0f, 0.0f, {0.0, 0.0, 0.0} }));
+		m_Scene.Materials.push_back(Material({ "BrightBlue", glm::vec3(0.1, 0.2, 0.9), 1.0f, 0.0f, 2.0f, {0.5, 0.6, 0.8} }));
+		m_Scene.Materials.push_back(Material({ "RoughPurple", glm::vec3(0.5, 0.2, 0.8), 1.0f, 0.0f, 0.0f, {0.0, 0.0, 0.0} }));
 
-		Sphere sphere1 = { glm::vec3(1.0, 2.0, 0.0), 0.7f, 0 };
+		Sphere sphere1 = { glm::vec3(0.6, 0.1, 0.8), 0.36f, 0 };
 		sphere1.setName("OrangeBall");
 
+		Sphere sphere2 = { glm::vec3(-0.2, -0.09, 0.8), 0.27f, 1 };
+		sphere2.setName("GreenBall");
+
+		Sphere sphere3 = { glm::vec3(-0.7, -0.2, 0.8), 0.2f, 2 };
+		sphere3.setName("YellowBall");
+
+		Sphere sphere4 = { glm::vec3(-1.1, 1.5, 0.5), 0.63f, 3 };
+		sphere4.setName("BlueBall");
+
+		Sphere sphere5 = { glm::vec3(0.0, -12.3, 1.0), 2.0f, 4 };
+		sphere5.setName("BigBall");
+
 		m_Scene.Objects.push_back(std::make_shared<Sphere>(sphere1));
-		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(-1.0, -1.0, 0.0), 0.7f, 1));
-		m_Scene.Objects.push_back(std::make_shared<Sphere>(glm::vec3(0.0, 0.0, -2.0), 0.7f, 2));
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(sphere2));
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(sphere3));
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(sphere4));
+		m_Scene.Objects.push_back(std::make_shared<Sphere>(sphere5));
 	}
 
 	virtual void OnUIRender() override
 	{
 		ImGuiUtils::AddHierarchy(m_Scene);
 		ImGuiUtils::AddInspector(m_Scene, m_LastRenderTime);
-		ImGuiUtils::AddAssetsMenu(m_Scene);
 
 		ImGuiUtils::AddViewPort(m_Renderer, m_ViewportWidth, m_ViewportHeight);
 

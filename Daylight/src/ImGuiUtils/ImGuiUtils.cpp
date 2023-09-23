@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 bool ImGuiUtils::s_AccumulateImage = false;
+int ImGuiUtils::s_NumberOfBounces = 5;
 int ImGuiUtils::s_NodeClicked = -1; 
 ImGuiUtils::NodeType ImGuiUtils::s_ClickedNodeType = ImGuiUtils::NodeType::None;
 ImGuiTreeNodeFlags ImGuiUtils::s_BaseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -36,13 +37,14 @@ void ImGuiUtils::AddHierarchy(Scene& activeScene)
 	ImGui::Separator();
 
 	ImGui::TextColored(ImVec4(0.3f, 0.6f, 1.0f, 1.0f), "Objects");
+	ImGui::Separator();
 
 	for (size_t i = 0; i < activeScene.Objects.size(); i++)
 	{
 		auto& object = activeScene.Objects[i];
 
 		ImGuiTreeNodeFlags node_flags = s_BaseFlags;
-		const bool is_selected = (s_NodeClicked == i);
+		const bool is_selected = (s_NodeClicked == i && s_ClickedNodeType == NodeType::Object);
 		if (is_selected)
 			node_flags |= ImGuiTreeNodeFlags_Selected;
 
@@ -60,13 +62,14 @@ void ImGuiUtils::AddHierarchy(Scene& activeScene)
 	ImGui::Separator();
 
 	ImGui::TextColored(ImVec4(0.3f, 0.6f, 1.0f, 1.0f), "Materials");
+	ImGui::Separator();
 
 	for (size_t i = 0; i < activeScene.Materials.size(); i++)
 	{
 		auto& material = activeScene.Materials[i];
 
 		ImGuiTreeNodeFlags node_flags = s_BaseFlags;
-		const bool is_selected = (s_NodeClicked == i);
+		const bool is_selected = (s_NodeClicked == i && s_ClickedNodeType == NodeType::Material);
 		if (is_selected)
 			node_flags |= ImGuiTreeNodeFlags_Selected;
 
@@ -89,17 +92,13 @@ void ImGuiUtils::AddInspector(Scene& activeScene, float lastRenderTime)
 	ImGui::Begin("Inspector");
 
 
-	ImGui::DragFloat3("Light Direction", glm::value_ptr(activeScene.LightDir), 0.03f);
-	ImGui::ColorEdit3("Sky Color", glm::value_ptr(activeScene.BgColor), 0.03f);
-
-	ImGui::Separator();
-
-
 	if (s_ClickedNodeType == NodeType::Object &&  s_NodeClicked != -1)
 	{
+		ImGui::TextColored(ImVec4(0.3f, 0.6f, 1.0f, 1.0f), "Object Info");
+		ImGui::Separator();
+
 		auto activeObject = activeScene.Objects[s_NodeClicked];
 
-		ImGui::Separator();
 
 		char nameBuffer[256]; // Assuming a maximum name length of 255 characters
 		strcpy(nameBuffer, activeObject->getName().c_str());
@@ -128,9 +127,10 @@ void ImGuiUtils::AddInspector(Scene& activeScene, float lastRenderTime)
 	}
 	else if (s_ClickedNodeType == NodeType::Material && s_NodeClicked != -1)
 	{
-		auto& activeMaterial = activeScene.Materials[s_NodeClicked];
-
+		ImGui::TextColored(ImVec4(0.3f, 0.6f, 1.0f, 1.0f), "Material Info");
 		ImGui::Separator();
+
+		auto& activeMaterial = activeScene.Materials[s_NodeClicked];
 		
 		char nameBuffer[256]; // Assuming a maximum name length of 255 characters
 		strcpy(nameBuffer, activeMaterial.Name.c_str());
@@ -140,30 +140,38 @@ void ImGuiUtils::AddInspector(Scene& activeScene, float lastRenderTime)
 		ImGui::ColorEdit3("Albedo", glm::value_ptr(activeMaterial.Albedo), 0.1f);
 		ImGui::DragFloat("Roughness", &activeMaterial.Roughness, 0.1f);
 		ImGui::DragFloat("Metallic", &activeMaterial.Metallic, 0.1f);
+
 		ImGui::DragFloat("EmissionPower", &activeMaterial.EmissionPower, 0.1f);
+		ImGui::ColorEdit3("EmissionColor", glm::value_ptr(activeMaterial.EmissionColor), 0.1f);
 
 		ImGui::Separator();
 	}
 
+	ImGui::TextColored(ImVec4(0.3f, 0.6f, 1.0f, 1.0f), "Settings");
+	ImGui::Separator();
+
+
+	ImGui::TextColored(ImVec4(0.7f, 0.2f, 0.2f, 1.0f), "Sky");
+	ImGui::DragFloat3("Light Direction", glm::value_ptr(activeScene.SampleSky.SunLightDirection), 0.03f);
+	ImGui::ColorEdit3("Horizon Sky Color ", glm::value_ptr(activeScene.SampleSky.SkyColorHorizon), 0.03f);
+	ImGui::ColorEdit3("Zenith Sky Color", glm::value_ptr(activeScene.SampleSky.SkyColorZenith), 0.03f);
+	ImGui::DragFloat("SunFocus", &activeScene.SampleSky.SunFocus, 0.03f, 0.0f);
+	ImGui::DragFloat("SunIntensity", &activeScene.SampleSky.SunIntensity, 0.03f, 0.0f);
+	ImGui::ColorEdit3("Ground Color", glm::value_ptr(activeScene.SampleSky.GroundColor), 0.3f);
+
+
+	ImGui::TextColored(ImVec4(0.7f, 0.2f, 0.2f, 1.0f), "Renderer");
 	ImGui::Checkbox("Accumulate", &s_AccumulateImage);
+	ImGui::SliderInt("Bounces", &s_NumberOfBounces, 1, 20);
+
+
+	ImGui::Separator();
+
+	ImGui::TextColored(ImVec4(0.3f, 0.6f, 1.0f, 1.0f), "Stats");
+	ImGui::Separator();
 
 	ImGui::Text("Last render: %.3fms", lastRenderTime);
-
-	ImGui::End();
-}
-
-void ImGuiUtils::AddAssetsMenu(Scene& activeScene)
-{
-	ImGui::Begin("Asset");
-
-	if (ImGui::BeginMenu("Create New Material"))
-	{
-		if (ImGui::MenuItem("Default Material"))
-		{
-			activeScene.Materials.push_back(Material({ "new", glm::vec3(1.0f, 0.0f, 1.0f), 1.0f, 1.0f, 1.0f}));
-		}
-		ImGui::EndMenu();
-	}
+	ImGui::Text("Frame rate: %.0f frames/sec", 1000.0f/lastRenderTime);
 
 	ImGui::End();
 }

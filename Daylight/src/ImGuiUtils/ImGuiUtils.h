@@ -3,7 +3,6 @@
 #include "../Renderer/Renderer.h"
 #include "imgui.h"
 
-
 class ImGuiUtils
 {
 public:
@@ -16,12 +15,13 @@ public:
 
 	static void AddHierarchy(Scene& activeScene);
 	static void AddInspector(Scene& activeScene, float lastRenderTime);
-	static void AddAssetsMenu(Scene& activeScene);
 	static void AddViewPort(Renderer& renderer, uint32_t& viewportWidth, uint32_t& viewportHeight);
 
 	static bool getAccumulationStatus() { return s_AccumulateImage; }
+	static int getBounce() { return s_NumberOfBounces; }
 private:
 	static bool s_AccumulateImage;
+	static int s_NumberOfBounces;
 
 	static int s_NodeClicked; 
 	static NodeType s_ClickedNodeType;
