@@ -4,9 +4,8 @@ Daylight is an exciting project that delves into the world of Raytracing and Bas
 
 ### Images Created by Daylight
 
-![Demo1](https://imgur.com/a/Muri7SY)
-
-![Demo2](https://imgur.com/a/F5VMCsh)
+<img src="https://i.imgur.com/kUBeGrB.png" width="512"/>
+<img src="https://i.imgur.com/evDDHYZ.png" width="512"/>
 
 ## Getting Started
 
