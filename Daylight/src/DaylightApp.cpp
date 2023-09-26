@@ -30,22 +30,22 @@ public:
 	virtual void OnAttach() override
 	{
 		m_Scene.Materials.push_back(Material({ "DullOrange", glm::vec3(0.9, 0.3, 0.0), 1.0f, 0.0f, 0.0f, {0.0, 0.0, 0.0} }));
-		m_Scene.Materials.push_back(Material({ "DullGreen", glm::vec3(0.1, 0.9, 0.2), 1.0f, 0.0f, 0.0f, {0.0, 0.0, 0.0} }));
-		m_Scene.Materials.push_back(Material({ "ShinyYellow", glm::vec3(0.8, 0.7, 0.1), 0.0f, 1.0f, 0.0f, {0.0, 0.0, 0.0} }));
-		m_Scene.Materials.push_back(Material({ "BrightBlue", glm::vec3(0.1, 0.2, 0.9), 1.0f, 0.0f, 2.0f, {0.5, 0.6, 0.8} }));
+		m_Scene.Materials.push_back(Material({ "BrightYellow", glm::vec3(0.0, 0.0, 0.0), 1.0f, 0.0f, 1.5f, {0.8, 0.7, 0.1} }));
 		m_Scene.Materials.push_back(Material({ "RoughPurple", glm::vec3(0.5, 0.2, 0.8), 1.0f, 0.0f, 0.0f, {0.0, 0.0, 0.0} }));
+		m_Scene.Materials.push_back(Material({ "ShinyGray", glm::vec3(0.5, 0.5, 0.5), 0.0f, 1.0f, 0.0f, {0.0, 0.0, 0.0} }));
+		m_Scene.Materials.push_back(Material({ "DullGreen", glm::vec3(0.1, 0.9, 0.2), 1.0f, 0.0f, 0.0f, {0.0, 0.0, 0.0} }));
 
-		Sphere sphere1 = { glm::vec3(0.6, 0.1, 0.8), 0.36f, 0 };
+		Sphere sphere1 = { glm::vec3(0.6, 0.09, 0.8), 0.36f, 0 };
 		sphere1.setName("OrangeBall");
 
-		Sphere sphere2 = { glm::vec3(-0.2, -0.09, 0.8), 0.27f, 1 };
-		sphere2.setName("GreenBall");
+		Sphere sphere2 = { glm::vec3(-0.2, -0.08, 0.8), 0.27f, 1 };
+		sphere2.setName("YellowBall");
 
 		Sphere sphere3 = { glm::vec3(-0.7, -0.2, 0.8), 0.2f, 2 };
-		sphere3.setName("YellowBall");
+		sphere3.setName("PurpleBall");
 
-		Sphere sphere4 = { glm::vec3(-1.1, 1.5, 0.5), 0.63f, 3 };
-		sphere4.setName("BlueBall");
+		Sphere sphere4 = { glm::vec3(-1.8, 0.8, -2.0), 0.6f, 3 };
+		sphere4.setName("GreyBall");
 
 		Sphere sphere5 = { glm::vec3(0.0, -12.3, 1.0), 2.0f, 4 };
 		sphere5.setName("BigBall");

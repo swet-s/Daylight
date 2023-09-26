@@ -152,11 +152,15 @@ void ImGuiUtils::AddInspector(Scene& activeScene, float lastRenderTime)
 
 
 	ImGui::TextColored(ImVec4(0.7f, 0.2f, 0.2f, 1.0f), "Sky");
-	ImGui::DragFloat3("Light Direction", glm::value_ptr(activeScene.SampleSky.SunLightDirection), 0.03f);
+
+	// ROTATION EXPERIMENTAL CODE
+	ImGui::SliderFloat3("Light Rotation", glm::value_ptr(activeScene.SampleSky.SunLightRotation), -180.0f, 180.0f);
+
+
 	ImGui::ColorEdit3("Horizon Sky Color ", glm::value_ptr(activeScene.SampleSky.SkyColorHorizon), 0.03f);
 	ImGui::ColorEdit3("Zenith Sky Color", glm::value_ptr(activeScene.SampleSky.SkyColorZenith), 0.03f);
-	ImGui::DragFloat("SunFocus", &activeScene.SampleSky.SunFocus, 0.03f, 0.0f);
-	ImGui::DragFloat("SunIntensity", &activeScene.SampleSky.SunIntensity, 0.03f, 0.0f);
+	ImGui::DragFloat("SunFocus", &activeScene.SampleSky.SunFocus, 0.3f, 0.0f);
+	ImGui::DragFloat("SunIntensity", &activeScene.SampleSky.SunIntensity, 0.3f, 0.0f);
 	ImGui::ColorEdit3("Ground Color", glm::value_ptr(activeScene.SampleSky.GroundColor), 0.3f);
 
 

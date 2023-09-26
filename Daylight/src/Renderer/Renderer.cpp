@@ -117,12 +117,13 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 		//ray.Direction = glm::reflect(ray.Direction, payload.WorldNormal + material.Roughness * Walnut::Random::Vec3(-0.5f, 0.5f));
 #endif
 		//Place reflected ray origin slightly further along the normal from the intersection point.
-		ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.0001f;
-		ray.Direction = glm::normalize(payload.WorldNormal + Walnut::Random::InUnitSphere());
-
-
 		const std::shared_ptr<Object> object = m_ActiveScene->Objects[payload.ObjectIndex];
 		const Material& material = m_ActiveScene->Materials[object->m_MaterialIndex];
+
+		ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.0001f;
+		ray.Direction = glm::normalize(payload.WorldNormal + Walnut::Random::InUnitSphere() * material.Roughness);
+
+
 		light += material.GetEmission() * throughput;
 		throughput *= material.Albedo;
 

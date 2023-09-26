@@ -43,7 +43,7 @@ namespace Utils {
 		glm::vec3 skyGradient = Lerp(sampleSky.SkyColorHorizon, sampleSky.SkyColorZenith, skyGradientT);
 
 		// Create sun from the directional light
-		float sun = glm::pow(std::max(0.0f, glm::dot(ray.Direction, -glm::normalize(sampleSky.SunLightDirection))), sampleSky.SunFocus) * sampleSky.SunIntensity;
+		float sun = glm::pow(std::max(0.0f, glm::dot(ray.Direction, -sampleSky.getDirection())), sampleSky.SunFocus) * sampleSky.SunIntensity;
 
 		// Combine ground, sky, and sun
 		float groundToSkyT = SmoothStep(-0.01f, 0.0f, ray.Direction.y);
