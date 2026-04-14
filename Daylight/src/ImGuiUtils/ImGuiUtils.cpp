@@ -51,7 +51,7 @@ void ImGuiUtils::AddHierarchy(Scene& activeScene)
 		node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
 		// TODO: some check for unique name
-		ImGui::TreeNodeEx(&i, node_flags, "%s[%d]", object->getName(), i);
+		ImGui::TreeNodeEx(&i, node_flags, "%s[%zu]", object->getName().c_str(), i);
 		if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
 		{
 			s_NodeClicked = i;
@@ -76,7 +76,7 @@ void ImGuiUtils::AddHierarchy(Scene& activeScene)
 		node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
 		// TODO: some check for unique name
-		ImGui::TreeNodeEx(&i, node_flags, "%s[%d]", material.Name.c_str(), i);
+		ImGui::TreeNodeEx(&i, node_flags, "%s[%zu]", material.Name.c_str(), i);
 		if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
 		{
 			s_NodeClicked = i;
@@ -137,12 +137,12 @@ void ImGuiUtils::AddInspector(Scene& activeScene, float lastRenderTime)
 		ImGui::InputText("Name", nameBuffer, sizeof(nameBuffer), ImGuiInputTextFlags_EnterReturnsTrue);
 		activeMaterial.Name = nameBuffer;
 
-		ImGui::ColorEdit3("Albedo", glm::value_ptr(activeMaterial.Albedo), 0.1f);
+		ImGui::ColorEdit3("Albedo", glm::value_ptr(activeMaterial.Albedo));
 		ImGui::DragFloat("Roughness", &activeMaterial.Roughness, 0.1f);
 		ImGui::DragFloat("Metallic", &activeMaterial.Metallic, 0.1f);
 
 		ImGui::DragFloat("EmissionPower", &activeMaterial.EmissionPower, 0.1f);
-		ImGui::ColorEdit3("EmissionColor", glm::value_ptr(activeMaterial.EmissionColor), 0.1f);
+		ImGui::ColorEdit3("EmissionColor", glm::value_ptr(activeMaterial.EmissionColor));
 
 		ImGui::Separator();
 	}
@@ -157,11 +157,11 @@ void ImGuiUtils::AddInspector(Scene& activeScene, float lastRenderTime)
 	ImGui::SliderFloat3("Light Rotation", glm::value_ptr(activeScene.SampleSky.SunLightRotation), -180.0f, 180.0f);
 
 
-	ImGui::ColorEdit3("Horizon Sky Color ", glm::value_ptr(activeScene.SampleSky.SkyColorHorizon), 0.03f);
-	ImGui::ColorEdit3("Zenith Sky Color", glm::value_ptr(activeScene.SampleSky.SkyColorZenith), 0.03f);
+	ImGui::ColorEdit3("Horizon Sky Color ", glm::value_ptr(activeScene.SampleSky.SkyColorHorizon));
+	ImGui::ColorEdit3("Zenith Sky Color", glm::value_ptr(activeScene.SampleSky.SkyColorZenith));
 	ImGui::DragFloat("SunFocus", &activeScene.SampleSky.SunFocus, 0.3f, 0.0f);
 	ImGui::DragFloat("SunIntensity", &activeScene.SampleSky.SunIntensity, 0.3f, 0.0f);
-	ImGui::ColorEdit3("Ground Color", glm::value_ptr(activeScene.SampleSky.GroundColor), 0.3f);
+	ImGui::ColorEdit3("Ground Color", glm::value_ptr(activeScene.SampleSky.GroundColor));
 
 
 	ImGui::TextColored(ImVec4(0.7f, 0.2f, 0.2f, 1.0f), "Renderer");

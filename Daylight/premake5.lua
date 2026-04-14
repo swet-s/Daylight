@@ -10,7 +10,7 @@ project "Daylight"
    includedirs
    {
       "../Walnut/vendor/imgui",
-      "../Walnut/vendor/glfw/include",
+      "%{IncludeDir.GLFW}",
       "../Walnut/vendor/glm",
 
       "../Walnut/Walnut/src",
@@ -20,7 +20,9 @@ project "Daylight"
 
    links
    {
-       "Walnut"
+       "Walnut",
+       "ImGui",
+       "%{Library.GLFW}"
    }
 
    targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
@@ -29,6 +31,23 @@ project "Daylight"
    filter "system:windows"
       systemversion "latest"
       defines { "WL_PLATFORM_WINDOWS" }
+
+   filter "system:macosx"
+      defines { "WL_PLATFORM_MACOS" }
+      libdirs { "%{LibraryDir.VulkanSDK}", "%{LibraryDir.GLFW}" }
+      linkoptions
+      {
+         "-Wl,-rpath,%{LibraryDir.VulkanSDK}",
+         "-Wl,-rpath,%{LibraryDir.GLFW}"
+      }
+      links
+      {
+         "%{Library.Vulkan}",
+         "Cocoa.framework",
+         "IOKit.framework",
+         "CoreVideo.framework",
+         "QuartzCore.framework"
+      }
 
    filter "configurations:Debug"
       defines { "WL_DEBUG" }

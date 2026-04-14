@@ -4,6 +4,10 @@ workspace "Daylight"
    configurations { "Debug", "Release", "Dist" }
    startproject "Daylight"
 
+filter "system:macosx"
+   architecture "arm64"
+filter {}
+
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 include "Walnut/WalnutExternal.lua"
 
