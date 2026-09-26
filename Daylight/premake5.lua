@@ -5,24 +5,26 @@ project "Daylight"
    targetdir "bin/%{cfg.buildcfg}"
    staticruntime "off"
 
-   files { "src/**.h", "src/**.cpp" }
+   files { "src/**.h", "src/**.cpp", "vendor/imgui/*.h", "vendor/imgui/*.cpp" }
 
    includedirs
    {
-      "../Walnut/vendor/imgui",
+      "vendor/imgui",
       "%{IncludeDir.GLFW}",
-      "../Walnut/vendor/glm",
+      "vendor/glm",
+      "vendor/stb_image",
 
-      "../Walnut/Walnut/src",
+      "src",
 
       "%{IncludeDir.VulkanSDK}",
    }
 
+   libdirs { "%{LibraryDir.VulkanSDK}" }
+
    links
    {
-       "Walnut",
-       "ImGui",
-       "%{Library.GLFW}"
+       "GLFW",
+       "%{Library.Vulkan}"
    }
 
    targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
@@ -34,15 +36,9 @@ project "Daylight"
 
    filter "system:macosx"
       defines { "WL_PLATFORM_MACOS" }
-      libdirs { "%{LibraryDir.VulkanSDK}", "%{LibraryDir.GLFW}" }
-      linkoptions
-      {
-         "-Wl,-rpath,%{LibraryDir.VulkanSDK}",
-         "-Wl,-rpath,%{LibraryDir.GLFW}"
-      }
+      linkoptions { "-Wl,-rpath,%{LibraryDir.VulkanSDK}" }
       links
       {
-         "%{Library.Vulkan}",
          "Cocoa.framework",
          "IOKit.framework",
          "CoreVideo.framework",

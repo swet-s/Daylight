@@ -13,21 +13,41 @@ Daylight is an exciting project that delves into the world of Raytracing and Bas
 To get started, clone the Daylight repository using the following command in your terminal or command prompt:
 
 ```bash
-git clone --recursive "https://github.com/swet-s/Daylight"
+git clone "https://github.com/swet-s/Daylight"
 ```
 
-The --recursive flag is essential during the cloning process because Daylight depends on external submodules/libraries.
+All other dependencies (GLFW, ImGui, glm, stb_image) are included in `Daylight/vendor`.
 
-### Setup
-After cloning the repository, navigate to the project directory and run `Setup.bat` located in the `scripts` folder. This script will generate the necessary Visual Studio 2022 solution and project files, setting up the project for you to start working on.
+### Windows
+Prerequisites:
 
-### Prerequisites
-Before running this project, ensure that you have the following installed:
-
-- Vulkan SDK
+- [Vulkan SDK](https://vulkan.lunarg.com/sdk/home#windows)
 - Visual Studio 2022 (or later)
+- [premake5](https://premake.github.io/download) available on your `PATH`
 
-Once you have the prerequisites ready and the setup completed, you can dive into Daylight's exciting world of Raytracing and Basic Rendering!
+To start the app, run `scripts/Setup.bat` (double-click works) to generate the Visual Studio 2022 solution, open `Daylight.sln`, and press **F5**.
+
+### macOS (Apple Silicon)
+Prerequisites:
+
+- Xcode Command Line Tools: `xcode-select --install`
+- Vulkan (via MoltenVK) and premake5: `brew install vulkan-headers vulkan-loader molten-vk premake`
+
+  Alternatively, install the [LunarG Vulkan SDK](https://vulkan.lunarg.com/sdk/home#mac) and set `VULKAN_SDK` before running setup.
+
+To start the app, run this from the project folder:
+
+```bash
+./scripts/Setup.sh release
+```
+
+This builds the app and launches it. Other options:
+
+- `./scripts/Setup.sh` builds and runs the `debug` configuration (slower rendering, easier to debug).
+- `./scripts/Setup.sh release --no-run` only builds, without launching.
+- `dist` is also accepted as a configuration.
+
+Once the setup is complete, you can dive into Daylight's exciting world of Raytracing and Basic Rendering!
 
 ## License
 This project is licensed under the [MIT License](LICENSE).

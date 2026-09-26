@@ -9,6 +9,10 @@ filter "system:macosx"
 filter {}
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
-include "Walnut/WalnutExternal.lua"
+include "Dependencies.lua"
+
+group "Dependencies"
+   include "Daylight/vendor/GLFW"
+group ""
 
 include "Daylight"
