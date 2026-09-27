@@ -1,6 +1,7 @@
 #pragma once
 #include "../Scene.h"
 #include "../Renderer/Renderer.h"
+#include "../Camera/Camera.h"
 #include "imgui.h"
 
 class ImGuiUtils
@@ -14,7 +15,8 @@ public:
 	};
 
 	static void AddHierarchy(Scene& activeScene);
-	static void AddInspector(Scene& activeScene, float lastRenderTime);
+	// Returns true if the camera was changed from the UI
+	static bool AddInspector(Scene& activeScene, Camera& camera, float lastRenderTime);
 	static void AddViewPort(Renderer& renderer, uint32_t& viewportWidth, uint32_t& viewportHeight);
 
 	static bool getAccumulationStatus() { return s_AccumulateImage; }

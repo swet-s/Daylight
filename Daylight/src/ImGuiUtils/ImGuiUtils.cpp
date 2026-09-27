@@ -87,7 +87,7 @@ void ImGuiUtils::AddHierarchy(Scene& activeScene)
 }
 
 
-void ImGuiUtils::AddInspector(Scene& activeScene, float lastRenderTime)
+bool ImGuiUtils::AddInspector(Scene& activeScene, Camera& camera, float lastRenderTime)
 {
 	ImGui::Begin("Inspector");
 
@@ -151,6 +151,13 @@ void ImGuiUtils::AddInspector(Scene& activeScene, float lastRenderTime)
 	ImGui::Separator();
 
 
+	ImGui::TextColored(ImVec4(0.7f, 0.2f, 0.2f, 1.0f), "Camera");
+
+	glm::vec3 cameraDirection = camera.GetDirection();
+	bool cameraChanged = ImGui::DragFloat3("Direction", glm::value_ptr(cameraDirection), 0.01f, -1.0f, 1.0f);
+	if (cameraChanged && glm::length(cameraDirection) > 0.0f)
+		camera.SetDirection(cameraDirection);
+
 	ImGui::TextColored(ImVec4(0.7f, 0.2f, 0.2f, 1.0f), "Sky");
 
 	// ROTATION EXPERIMENTAL CODE
@@ -178,6 +185,8 @@ void ImGuiUtils::AddInspector(Scene& activeScene, float lastRenderTime)
 	ImGui::Text("Frame rate: %.0f frames/sec", 1000.0f/lastRenderTime);
 
 	ImGui::End();
+
+	return cameraChanged;
 }
 
 void ImGuiUtils::AddViewPort(Renderer& renderer, uint32_t& viewportWidth, uint32_t& viewportHeight)

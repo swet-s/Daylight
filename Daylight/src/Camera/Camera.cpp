@@ -102,6 +102,13 @@ void Camera::OnResize(uint32_t width, uint32_t height)
 	RecalculateRayDirections();
 }
 
+void Camera::SetDirection(const glm::vec3& direction)
+{
+	m_ForwardDirection = glm::normalize(direction);
+	RecalculateView();
+	RecalculateRayDirections();
+}
+
 float Camera::GetRotationSpeed()
 {
 	return 0.3f;

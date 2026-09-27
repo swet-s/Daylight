@@ -60,7 +60,8 @@ public:
 	virtual void OnUIRender() override
 	{
 		ImGuiUtils::AddHierarchy(m_Scene);
-		ImGuiUtils::AddInspector(m_Scene, m_LastRenderTime);
+		if (ImGuiUtils::AddInspector(m_Scene, m_Camera, m_LastRenderTime))
+			m_Renderer.ResetFrameIndex();
 
 		ImGuiUtils::AddViewPort(m_Renderer, m_ViewportWidth, m_ViewportHeight);
 

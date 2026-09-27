@@ -18,6 +18,7 @@ public:
 
 	const glm::vec3& GetPosition() const { return m_Position; }
 	const glm::vec3& GetDirection() const { return m_ForwardDirection; }
+	void SetDirection(const glm::vec3& direction);
 
 	const std::vector<glm::vec3>& GetRayDirections() const { return m_RayDirections; }
 
